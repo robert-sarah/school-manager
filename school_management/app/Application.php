@@ -151,7 +151,7 @@ class Application {
             echo "<h2>Stack Trace:</h2>";
             echo "<pre>" . $exception->getTraceAsString() . "</pre>";
         } else {
-            require __DIR__ . '/../views/errors/500.php';
+            require __DIR__ . '/views/500.php';
         }
 
         exit(1);
@@ -167,7 +167,7 @@ class Application {
             ]);
 
             if (!$this->config['app']['debug']) {
-                require __DIR__ . '/../views/errors/500.php';
+                require __DIR__ . '/views/500.php';
             }
         }
     }
@@ -239,7 +239,12 @@ class Application {
 
             // Charger les routes
             require __DIR__ . '/../routes/web.php';
-            require __DIR__ . '/../routes/api.php';
+            
+            // Vérifier si le fichier api.php existe avant de le charger
+            $apiRoutesFile = __DIR__ . '/../routes/api.php';
+            if (file_exists($apiRoutesFile)) {
+                require $apiRoutesFile;
+            }
 
             // Traiter la requête
             $uri = $_SERVER['REQUEST_URI'] ?? '/';

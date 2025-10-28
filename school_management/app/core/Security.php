@@ -76,8 +76,23 @@ class Security {
                             break;
                             
                         case 'date':
-                            if (!strtotime($value)) {
+                            if (!empty($value) && !strtotime($value)) {
                                 $errors[$field][] = "Date invalide";
+                            }
+                            break;
+                        case 'email':
+                            if (!empty($value) && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                                $errors[$field][] = "Email invalide";
+                            }
+                            break;
+                        case 'url':
+                            if (!empty($value) && !filter_var($value, FILTER_VALIDATE_URL)) {
+                                $errors[$field][] = "URL invalide";
+                            }
+                            break;
+                        case 'numeric':
+                            if (!empty($value) && !is_numeric($value)) {
+                                $errors[$field][] = "Doit être un nombre";
                             }
                             break;
                     }
@@ -99,8 +114,25 @@ class Security {
                             break;
                             
                         case 'regex':
-                            if (!preg_match($ruleValue, $value)) {
-                                $errors[$field][] = "Format invalide";
+                            if (!empty($value)) {
+                                if (!preg_match($ruleValue, $value)) {
+                                    $errors[$field][] = "Format invalide";
+                                }
+                            }
+                            break;
+                        case 'in':
+                            if (!empty($value) && !in_array($value, (array)$ruleValue)) {
+                                $errors[$field][] = "Valeur non autorisée";
+                            }
+                            break;
+                        case 'unique':
+                            if (!empty($value)) {
+                                list($table, $column) = explode(',', $ruleValue);
+                                $stmt = $this->db->prepare("SELECT COUNT(*) FROM $table WHERE $column = ?");
+                                $stmt->execute([$value]);
+                                if ($stmt->fetchColumn() > 0) {
+                                    $errors[$field][] = "Cette valeur existe déjà";
+                                }
                             }
                             break;
                     }

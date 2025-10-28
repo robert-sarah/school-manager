@@ -5,7 +5,11 @@ class Router {
     private $routes = [];
     
     public function __construct() {
-        $this->routes = require_once __DIR__ . '/../../config/routes.php';
+        $routesFile = __DIR__ . '/../../config/routes.php';
+        if (!file_exists($routesFile)) {
+            throw new \Exception('Le fichier de routes est introuvable');
+        }
+        $this->routes = require_once $routesFile;
     }
     
     public function dispatch($uri) {
@@ -48,6 +52,7 @@ class Router {
         // Si aucune route ne correspond
         header("HTTP/1.0 404 Not Found");
         require_once __DIR__ . '/../views/404.php';
+        return false;
     }
     
     private function convertRouteToRegex($route) {
